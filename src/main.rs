@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
-use std::num::Wrapping;
+//use std::num::Wrapping;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
@@ -23,17 +23,21 @@ fn mandelbrot(x: u32, y: u32, image: Arc<Mutex<Vec<u8>>>) {
         iter += 1;
     }
     let green = (((iter as f32 / MAX_ITER as f32) * 255_f32) * 3_f32) as u8;
-    let blue = Wrapping(Wrapping(green) * Wrapping(4)).0 .0;
+    let mut blue: u32 = green as u32 * 4;
+    if blue > 255 {
+        blue = 255;
+    }
+    //let blue = Wrapping(Wrapping(green) * Wrapping(4)).0 .0;
     let red = ((blue as f32 / 3_f32).sin() * 255_f32) as u8;
     let mut new = image.lock().unwrap();
     new[(((y * LENGTH + x) * 3) + 0) as usize] = red;
     new[(((y * LENGTH + x) * 3) + 1) as usize] = green;
-    new[(((y * LENGTH + x) * 3) + 2) as usize] = blue;
+    new[(((y * LENGTH + x) * 3) + 2) as usize] = blue as u8;
 }
 
 fn main() -> std::io::Result<()> {
     let start = Instant::now();
-    let num_threads = 10;
+    let num_threads = 20;
     assert_eq!(LENGTH % num_threads, 0);
     let cols_p_t = LENGTH / num_threads; // columns per thread
     let image: Arc<Mutex<Vec<u8>>> = Arc::new(Mutex::new(vec![0; (LENGTH * HEIGHT * 3) as usize]));
@@ -63,7 +67,7 @@ fn main() -> std::io::Result<()> {
         .map(|thread| {
             let image_clone = Arc::clone(&image);
             thread::spawn(move || {
-                for x in (thread * cols_p_t)..(cols_p_t * thread) + cols_p_t {
+                for x in (thread * cols_p_t)..((cols_p_t * thread) + cols_p_t) {
                     for y in 0..HEIGHT {
                         mandelbrot(x, y, Arc::clone(&image_clone));
                     }
