@@ -1,0 +1,32 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "tour_main",
+  "steps": [
+    {
+      "file": "src/main.rs",
+      "description": "This function computes the mandelbrot at each pixel x,y of an image",
+      "line": 13,
+      "selection": {
+        "start": {
+          "line": 20,
+          "character": 13
+        },
+        "end": {
+          "line": 20,
+          "character": 18
+        }
+      }
+    },
+    {
+      "file": "src/main.rs",
+      "description": "This assertion is to assert that all columns are computed and none are lost due to rounding",
+      "line": 37
+    },
+    {
+      "file": "src/main.rs",
+      "description": "These are the headers needed for the BMP image file format. ",
+      "line": 41
+    }
+  ],
+  "ref": "97174678bc8f3c6a8fb997f5a65fdf1d72cf5d40"
+}
