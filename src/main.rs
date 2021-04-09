@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
-//use std::num::Wrapping;
+use std::num::Wrapping;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::thread;
@@ -11,7 +11,7 @@ const HEIGHT: u32 = 4571;
 const MAX_ITER: u32 = 1000;
 
 fn mandelbrot(x: u32, y: u32, image: Arc<Mutex<Vec<u8>>>) {
-    let x0 = (x as f32 * (1.0 - -2.5)) / LENGTH as f32 + -2.5;
+    let x0 = (x as f32 * (1.0 - -2_f32)) / LENGTH as f32 + -2_f32;
     let y0 = (y as f32 * (1_f32 - -1_f32)) / HEIGHT as f32 + -1_f32;
     let mut mut_x = 0_f32;
     let mut mut_y = 0_f32;
@@ -23,11 +23,7 @@ fn mandelbrot(x: u32, y: u32, image: Arc<Mutex<Vec<u8>>>) {
         iter += 1;
     }
     let green = (((iter as f32 / MAX_ITER as f32) * 255_f32) * 3_f32) as u8;
-    let mut blue: u32 = green as u32 * 4;
-    if blue > 255 {
-        blue = 255;
-    }
-    //let blue = Wrapping(Wrapping(green) * Wrapping(4)).0 .0;
+    let blue = Wrapping(Wrapping(green) * Wrapping(4)).0 .0;
     let red = ((blue as f32 / 3_f32).sin() * 255_f32) as u8;
     let mut new = image.lock().unwrap();
     new[(((y * LENGTH + x) * 3) + 0) as usize] = red;
@@ -80,7 +76,7 @@ fn main() -> std::io::Result<()> {
     }
     let duration = start.elapsed();
     println!("{:?}", duration);
-    let mut file = File::create("test.bmp")?;
+    let mut file = File::create("images/test.bmp")?;
     file.write_all(&bmp)?;
     file.write_all(&dib)?;
     file.write_all(&*image.lock().unwrap())?;
