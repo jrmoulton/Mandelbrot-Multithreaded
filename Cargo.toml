@@ -1,5 +1,5 @@
 [package]
-name = "mandelbrot_par"
+name = "parallel_mandelbrot"
 version = "0.1.0"
 authors = ["Jared Moulton <jaredmoulton3@gmail.com>"]
 edition = "2018"
