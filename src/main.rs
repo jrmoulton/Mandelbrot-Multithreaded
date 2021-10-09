@@ -23,10 +23,10 @@ fn mandelbrot(x: u32, y: u32, image: Arc<Mutex<Vec<u8>>>) {
         iter += 1;
     }
     let green = (((iter as f32 / MAX_ITER as f32) * 255_f32) * 3_f32) as u8;
-    let blue = Wrapping(Wrapping(green) * Wrapping(4)).0 .0;
+    let blue = (Wrapping(green) * Wrapping(4)).0;
     let red = ((blue as f32 / 3_f32).sin() * 255_f32) as u8;
     let mut new = image.lock().unwrap();
-    new[(((y * LENGTH + x) * 3) + 0) as usize] = red;
+    new[((y * LENGTH + x) * 3) as usize] = red;
     new[(((y * LENGTH + x) * 3) + 1) as usize] = green;
     new[(((y * LENGTH + x) * 3) + 2) as usize] = blue as u8;
 }
@@ -59,7 +59,7 @@ fn main() -> std::io::Result<()> {
         0x00, 0x00, 0x00, 0x00,
     ];
 
-    let handles: Vec<_> = (0..num_threads)
+    let handles = (0..num_threads)
         .map(|thread| {
             let image_clone = Arc::clone(&image);
             thread::spawn(move || {
@@ -70,15 +70,20 @@ fn main() -> std::io::Result<()> {
                 }
             })
         })
-        .collect();
+        .collect::<Vec<_>>();
+
+    // this for loop ensuures that all theads have finished because the .join() won't complete
+    // until the thread has finished
     for handle in handles {
         handle.join().unwrap();
     }
+
     let duration = start.elapsed();
     println!("{:?}", duration);
+
     let mut file = File::create("images/test.bmp")?;
     file.write_all(&bmp)?;
     file.write_all(&dib)?;
-    file.write_all(&*image.lock().unwrap())?;
-    Ok(())
+    let write_result = file.write_all(&*image.lock().unwrap());
+    write_result
 }
